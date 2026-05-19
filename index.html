@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ringside: Last Bell</title>
+    <link rel="stylesheet" href="styles.css?v=14">
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="arena-panel" aria-label="Boxing ring">
+        <canvas id="gameCanvas" width="960" height="540" aria-label="Lobby Boxing game canvas"></canvas>
+        <div class="touch-controls" aria-label="Game controls">
+          <div class="move-pad" aria-label="Movement controls">
+            <button type="button" data-control="up" aria-label="Move up">W</button>
+            <button type="button" data-control="left" aria-label="Move left">A</button>
+            <button type="button" data-control="down" aria-label="Move down">S</button>
+            <button type="button" data-control="right" aria-label="Move right">D</button>
+          </div>
+          <div class="action-pad" aria-label="Fight controls">
+            <button type="button" data-action="jab" aria-label="Jab">JAB</button>
+            <button type="button" data-action="hook" aria-label="Hook">HOOK</button>
+            <button type="button" data-action="body" aria-label="Body shot">BODY</button>
+            <button type="button" data-action="slip" aria-label="Slip">SLIP</button>
+            <button type="button" data-control="guard" aria-label="Guard">GUARD</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-panel" aria-label="Game setup and fight status">
+        <header class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <h1>Ringside: Last Bell</h1>
+            <p id="statusLabel">Pick a mode</p>
+          </div>
+        </header>
+
+        <section class="mode-panel" aria-label="Mode select">
+          <button type="button" id="openBtn">Open World</button>
+          <button type="button" id="aiBtn">VS AI</button>
+          <button type="button" id="localBtn">Local 2P</button>
+          <button type="button" id="hostBtn">Create Lobby</button>
+          <button type="button" id="leaveBtn">Leave</button>
+        </section>
+
+        <section class="help-card" id="tutorialPanel" aria-label="How to play">
+          <div class="panel-head">
+            <strong>How to Play</strong>
+            <button type="button" id="toggleHelpBtn">Hide</button>
+          </div>
+          <div id="tutorialBody">
+            <p><b>Move:</b> WASD / arrows / touch pad. <b>Guard:</b> Space or L.</p>
+            <p><b>Light punch:</b> J. <b>Power punch:</b> K. <b>Body punch:</b> U. <b>Slip:</b> Shift.</p>
+            <p>In Open World, train at the gym to unlock new punches, then equip your J/K/U loadout. Jabs set up combos, power shots punish mistakes, and body shots drain stamina.</p>
+            <p>Guard blocks, but spends stamina and block. Slip at the right time to create counter opportunities.</p>
+            <p><b>Touch:</b> use the left pad to move and the action buttons for punches, slip, and guard.</p>
+          </div>
+        </section>
+
+        <section class="lobby-card" aria-label="Multiplayer lobby">
+          <label class="style-row" for="styleSelect">
+            <span>Fighter Style</span>
+            <select id="styleSelect">
+              <option value="balanced">Balanced</option>
+              <option value="boxer">Out Boxer</option>
+              <option value="brawler">Brawler</option>
+              <option value="tank">Pressure Tank</option>
+              <option value="counter">Counter Specialist</option>
+            </select>
+          </label>
+          <div class="style-preview" id="stylePreview" aria-label="Fighter style preview"></div>
+          <label class="style-row" for="difficultySelect">
+            <span>AI Difficulty</span>
+            <select id="difficultySelect">
+              <option value="easy">Easy</option>
+              <option value="normal" selected>Normal</option>
+              <option value="hard">Hard</option>
+            </select>
+          </label>
+          <div class="code-row">
+            <div>
+              <span>Lobby Code</span>
+              <strong id="lobbyCode">-----</strong>
+            </div>
+            <button type="button" id="copyBtn">Copy</button>
+          </div>
+          <div class="join-row">
+            <input id="joinCode" maxlength="5" autocomplete="off" spellcheck="false" placeholder="Code">
+            <button type="button" id="joinBtn">Join</button>
+          </div>
+        </section>
+
+        <div class="button-row">
+          <button type="button" id="startBtn">Start AI Match</button>
+          <button type="button" id="restartBtn">Restart</button>
+          <button type="button" id="pauseBtn">Pause</button>
+        </div>
+
+        <section class="settings-card" aria-label="Settings">
+          <label><input type="checkbox" id="muteToggle"> Mute</label>
+          <label><input type="checkbox" id="motionToggle"> Reduced Motion</label>
+          <button type="button" id="showHelpBtn">How to Play</button>
+          <button type="button" id="fullscreenBtn">Fullscreen</button>
+        </section>
+
+        <section class="world-card" id="worldCard" aria-label="Open world progress" hidden>
+          <div class="fighter-row">
+            <span id="worldAreaText">Rustbell Gym</span>
+            <strong id="worldLevelText">Lv 1</strong>
+          </div>
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>XP</span>
+              <span id="worldXpText">0 / 60</span>
+            </div>
+            <div class="meter meter-xp">
+              <span id="worldXpBar"></span>
+            </div>
+          </div>
+          <div class="world-stats-row">
+            <span id="worldMoneyText">$0</span>
+            <span id="worldSkillText">0 SP</span>
+          </div>
+          <div class="save-slot-row">
+            <select id="saveSlotSelect" aria-label="Save slot">
+              <option value="slot1">Save 1</option>
+              <option value="slot2">Save 2</option>
+              <option value="slot3">Save 3</option>
+            </select>
+            <button type="button" id="newGameBtn">New</button>
+            <button type="button" id="resetSaveBtn">Reset</button>
+          </div>
+          <p id="worldObjectiveText">Start the open world.</p>
+          <p id="worldPromptText">Press E to interact.</p>
+          <div class="world-actions">
+            <button type="button" id="worldUpgradeBtn">Upgrade</button>
+            <button type="button" id="worldSaveBtn">Save</button>
+            <button type="button" id="worldExitBtn">Exit</button>
+          </div>
+          <div class="upgrade-panel" id="upgradePanel" hidden>
+            <div id="upgradeList"></div>
+          </div>
+        </section>
+
+        <section class="fighter-card" aria-label="Your fighter">
+          <div class="fighter-row">
+            <span id="localName">You</span>
+            <strong id="modeText">Menu</strong>
+          </div>
+
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>Head</span>
+              <span id="healthText">100 / 100</span>
+            </div>
+            <div class="meter">
+              <span id="healthBar"></span>
+            </div>
+          </div>
+
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>Body</span>
+              <span id="bodyText">118 / 118</span>
+            </div>
+            <div class="meter meter-body">
+              <span id="bodyBar"></span>
+            </div>
+          </div>
+
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>Block</span>
+              <span id="blockText">80 / 80</span>
+            </div>
+            <div class="meter meter-block">
+              <span id="blockBar"></span>
+            </div>
+          </div>
+
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>Stamina</span>
+              <span id="staminaText">100 / 100</span>
+            </div>
+            <div class="meter meter-stamina">
+              <span id="staminaBar"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Fight stats">
+          <div>
+            <span>Role</span>
+            <strong id="roleText">Solo</strong>
+          </div>
+          <div>
+            <span>Combo</span>
+            <strong id="comboText">0x</strong>
+          </div>
+          <div>
+            <span>Opponent</span>
+            <strong id="enemyText">AI</strong>
+          </div>
+          <div>
+            <span>Style</span>
+            <strong id="styleText">Balanced</strong>
+          </div>
+          <div>
+            <span>Momentum</span>
+            <strong id="momentumText">Even</strong>
+          </div>
+          <div>
+            <span>Clock</span>
+            <strong id="clockText">1:30</strong>
+          </div>
+        </section>
+
+        <section class="fight-feed" aria-live="polite" aria-label="Fight log">
+          <div id="feed"></div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+    <script src="game.js?v=24"></script>
+  </body>
+</html>
